@@ -8,9 +8,32 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @Environment(\.managedObjectContext) var moc
+    
+    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "name == 'Harrry Porter'")) var wizards: FetchedResults<WIzard>
+    
+    @State private var wizardName: String = ""
+    
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        VStack {
+            List(wizards, id: \.self) { wizard in
+                Text(wizard.name ?? "Unknown")
+            }
+        }
+        
+        TextField("Enter a wized name", text: $wizardName)
+        
+        Button("Add") {
+            let wizard = WIzard(context: moc)
+            wizard.name = wizardName
+            do {
+                try moc.save()
+            } catch {
+                print(error.localizedDescription)
+            }
+            wizardName = ""
+        }
     }
 }
 
